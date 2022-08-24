@@ -1,7 +1,6 @@
 import pandas as pd
 
-def removeRT(df):
-    #df = pd.read_csv('ExtractedTweets.csv')
+def remove_rt(df):
 
     remove_list = []
     for row_num in range(df.shape[0]):
@@ -14,4 +13,3 @@ def removeRT(df):
     #print(df.shape)
 
     #print(df["Tweet"][36])
-    #df.to_csv('cleanData.csv')
