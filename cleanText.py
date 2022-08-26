@@ -1,31 +1,41 @@
-import pandas as pd
-import nltk
-import string
+from pandas import Series
+from nltk import RegexpTokenizer
+import regex
 
-def clean_text(df):
+
+def clean_text(inputDataset: Series) -> Series:
     print("Removing punctuation, numbers and links:")
-    remove_list = []
-    tokenizer = nltk.RegexpTokenizer(r"\w+")
-    for row_num in range(df.shape[0]):
-        text = df["Tweet"][row_num]
-        if "http" in text:
-            text = text[:text.find("http")]
 
-        text = text.replace("’","")
-        text = text.replace("…","")
-        text = text.replace("-","")
-        #text = text.translate(str.maketrans('', '', string.punctuation)
-        word_list = tokenizer.tokenize(text)
+    removeList = []
+    tokenizer = RegexpTokenizer(r"\w+")
 
-        new_text = " ".join([word for word in word_list if not word.isnumeric()])
+    for rowNum in range(inputDataset.count()):
+        text = str(inputDataset[rowNum])
+        if text != "":
+            # Remove URLs from text
+            # Credit: https://bobbyhadz.com/blog/python-remove-url-from-text
+            text = regex.sub(pattern = r"http\S+", repl = "", string = text)
+            
+            # Remove '’', '…', and '-' characters from text
+            text = regex.sub(pattern = r"[’…-]", repl = "", string = text)
 
-        if new_text == "":
-            remove_list.append(row_num)
+            # Tokenize the text into words containing only 
+            wordList = tokenizer.tokenize(text)
 
-        df["Tweet"][row_num] = new_text
-        if row_num % 10000 == 0 and row_num != 0:
-            print("Finished {0} lines".format(row_num))
-    df = df.drop(remove_list)
-    df = df.reset_index(drop=True)
+            # Rebuild our text with words that aren't numbers
+            text = " ".join([word for word in wordList if not word.isnumeric()])
+
+        # Hmm, the text has been obliterated or was empty this whole time...
+        # Mark text to be removed from inputDataset
+        if text == "":
+            removeList.append(rowNum)
+
+        inputDataset[rowNum] = text
+        if rowNum % 10000 == 0 and rowNum != 0:
+            print("Finished {0} lines".format(rowNum))
+
+    inputDataset.drop(labels = removeList, inplace = True)
+    inputDataset.reset_index(drop = True, inplace = True)
+
     print("Removed punctuation, numbers, links")
-    return df
+    return inputDataset

@@ -1,10 +1,8 @@
-from pandas import DataFrame
+from pandas import Series
 
-def tweets_to_lower_case(tweetDataSet: DataFrame) -> DataFrame:
+def tweets_to_lower_case(inputDataset: Series) -> Series:
     print("Converting to lowercase:")
-    tweets = tweetDataSet.loc[:, 'Tweet']
-    tweets = tweets.str.lower()
+    inputDataset = inputDataset.str.lower()
 
-    tweetDataSet.update(tweets)
     print("Converted to lowercase")
-    return tweetDataSet
+    return inputDataset
