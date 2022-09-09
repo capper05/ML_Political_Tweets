@@ -1,27 +1,29 @@
 import pandas as pd
-import numpy as np
-df = pd.read_csv('ExtractedTweets.csv',encoding="utf-8",dtype=str)
-print("Imported tweet data")
 
-import removeRT
-df = removeRT.remove_rt(df)
+def main():
+    parsedTweetData = pd.read_csv(filepath_or_buffer = 'ExtractedTweets.csv', encoding = 'utf-8', dtype = str)
+    print("Imported tweet data")
 
-import cleanText
-df = cleanText.clean_text(df)
+    tweetColumn = parsedTweetData.loc[:, 'Tweet']
 
-import lowerCaseTweets
-df = lowerCaseTweets.tweets_to_lower_case(df)
+    from removeRT import remove_rt
+    tweetColumn = remove_rt(tweetColumn)
 
-import removeStopWords
-df = removeStopWords.remove_stop_words(df)
+    from cleanText import clean_text
+    tweetColumn = clean_text(tweetColumn)
 
-import stem_words
-df = stem_words.stem_words(df)
+    from lowerCaseTweets import tweets_to_lower_case
+    tweetColumn = tweets_to_lower_case(tweetColumn)
 
-for row_num in range(df.shape[0]):
-    if pd.isna(df["Tweet"].tolist()[row_num]):
-        print(row_num)
+    from removeStopWords import remove_stop_words
+    tweetColumn = remove_stop_words(tweetColumn)
 
-# print(df["Tweet"][25])
-df.to_csv('cleanData.csv')
-print("Finished")
+    from stem_words import stem_words
+    tweetColumn = stem_words(tweetColumn)
+
+    parsedTweetData.update(tweetColumn)
+    parsedTweetData.to_csv('cleanData.csv', chunksize = 1000)
+    print("Finished")
+
+if __name__ == "__main__":
+    main()
